@@ -1,5 +1,5 @@
 name: NextDNS
-version: "1.1.0"
+version: "1.1.1"
 slug: nextdns
 description: Run the NextDNS client as a Home Assistant add-on for network-wide DNS filtering.
 url: "https://github.com/billytkid/ha-addon-nextdns"
