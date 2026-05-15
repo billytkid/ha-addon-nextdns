@@ -56,9 +56,15 @@ fi
 
 bashio::log.info "Profile: ${PROFILE_ID} | Device: ${DEVICE_NAME}"
 
-exec "${NEXTDNS_BIN}" run \
-    --profile "${PROFILE_ID}/${DEVICE_NAME}" \
-    --listen "0.0.0.0:53" \
-    --report-client-info \
-    --bogus-priv \
-    --use-hosts
+ARGS=(
+    "--profile" "${PROFILE_ID}/${DEVICE_NAME}"
+    "--listen" "0.0.0.0:53"
+    "--report-client-info"
+    "--bogus-priv"
+    "--use-hosts"
+)
+
+bashio::config.true 'log_queries' && ARGS+=("--log-queries")
+bashio::config.true 'cache'       && ARGS+=("--cache-size" "10MB")
+
+exec "${NEXTDNS_BIN}" run "${ARGS[@]}"

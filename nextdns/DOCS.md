@@ -14,6 +14,8 @@
 |---|---|
 | `profile_id` | Your NextDNS profile ID from my.nextdns.io (e.g. `3ee52c`) |
 | `device_name` | Name shown in your NextDNS dashboard (default: `home-assistant`) |
+| `log_queries` | Log every DNS query in the add-on log. Off by default — useful for troubleshooting blocked sites |
+| `cache` | Cache DNS responses locally (10 MB). Speeds up repeated lookups, reduces round-trips to NextDNS |
 
 ## Router Configuration
 

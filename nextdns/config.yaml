@@ -1,5 +1,5 @@
 name: NextDNS
-version: "0.9.0"
+version: "0.9.1"
 slug: nextdns
 description: Forward your network's DNS traffic through NextDNS.
 url: "https://github.com/billytkid/ha-addon-nextdns"
@@ -21,7 +21,11 @@ ports_description:
 options:
   profile_id: ""
   device_name: "home-assistant"
+  log_queries: false
+  cache: false
 schema:
   profile_id: str
   device_name: str
+  log_queries: bool
+  cache: bool
 image: "ghcr.io/billytkid/ha-addon-nextdns/{arch}"
