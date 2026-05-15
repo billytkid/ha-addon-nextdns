@@ -53,13 +53,10 @@ if bashio::var.is_empty "${PROFILE_ID}"; then
     exit 1
 fi
 
-# Set device name so NextDNS can identify this device in the dashboard
-hostname "${DEVICE_NAME}" 2>/dev/null || true
-
 bashio::log.info "Profile: ${PROFILE_ID} | Device: ${DEVICE_NAME}"
 
 exec "${NEXTDNS_BIN}" run \
-    --profile "${PROFILE_ID}" \
+    --profile "${PROFILE_ID}/${DEVICE_NAME}" \
     --listen "0.0.0.0:53" \
     --report-client-info \
     --bogus-priv \
