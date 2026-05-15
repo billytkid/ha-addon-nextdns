@@ -4,6 +4,7 @@
 NEXTDNS_BIN="/data/nextdns"
 VERSION_FILE="/data/nextdns.version"
 
+printf '\033c'
 bashio::log.info "Starting NextDNS add-on..."
 
 # ── Map HA arch to NextDNS release arch ───────────────────────────────────────

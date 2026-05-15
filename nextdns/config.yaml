@@ -1,5 +1,5 @@
 name: NextDNS
-version: "2.0.1"
+version: "2.0.2"
 slug: nextdns
 description: Forward your network's DNS traffic through NextDNS.
 url: "https://github.com/billytkid/ha-addon-nextdns"
