@@ -4,8 +4,7 @@
 NEXTDNS_BIN="/data/nextdns"
 VERSION_FILE="/data/nextdns.version"
 
-bashio::log.info "=== NextDNS Add-on starting ==="
-bashio::log.info "Architecture: ${BUILD_ARCH}"
+bashio::log.info "Starting NextDNS add-on..."
 
 # ── Map HA arch to NextDNS release arch ───────────────────────────────────────
 case "${BUILD_ARCH}" in
@@ -19,82 +18,49 @@ case "${BUILD_ARCH}" in
         exit 1
         ;;
 esac
-bashio::log.debug "NextDNS arch: ${NEXTDNS_ARCH}"
 
-# ── Fetch latest version from GitHub ──────────────────────────────────────────
-bashio::log.info "Checking GitHub for latest NextDNS release..."
+# ── Download latest NextDNS if needed ─────────────────────────────────────────
 LATEST=$(curl -fsSL --max-time 10 \
     "https://api.github.com/repos/nextdns/nextdns/releases/latest" \
     | jq -r '.tag_name' | tr -d 'v') || true
 
-if bashio::var.is_empty "${LATEST}"; then
-    bashio::log.warning "Could not reach GitHub API."
-    LATEST=""
-else
-    bashio::log.info "Latest NextDNS version: v${LATEST}"
-fi
-
 CACHED=""
-if [ -f "${VERSION_FILE}" ]; then
-    CACHED=$(cat "${VERSION_FILE}")
-    bashio::log.info "Cached NextDNS version: v${CACHED}"
-fi
+[ -f "${VERSION_FILE}" ] && CACHED=$(cat "${VERSION_FILE}")
 
-# ── Download if missing or outdated ───────────────────────────────────────────
 if [ ! -x "${NEXTDNS_BIN}" ] || { [ -n "${LATEST}" ] && [ "${LATEST}" != "${CACHED}" ]; }; then
     if [ -n "${LATEST}" ]; then
-        URL="https://github.com/nextdns/nextdns/releases/download/v${LATEST}/nextdns_${LATEST}_linux_${NEXTDNS_ARCH}.tar.gz"
-        bashio::log.info "Downloading NextDNS v${LATEST} from: ${URL}"
-        if curl -fsSL --max-time 60 "${URL}" | tar -xz -C /data nextdns; then
-            chmod +x "${NEXTDNS_BIN}"
-            echo "${LATEST}" > "${VERSION_FILE}"
-            bashio::log.info "NextDNS v${LATEST} downloaded and ready."
-        else
-            bashio::log.fatal "Download failed! URL: ${URL}"
-            exit 1
-        fi
+        bashio::log.info "Downloading NextDNS v${LATEST}..."
+        curl -fsSL --max-time 60 \
+            "https://github.com/nextdns/nextdns/releases/download/v${LATEST}/nextdns_${LATEST}_linux_${NEXTDNS_ARCH}.tar.gz" \
+            | tar -xz -C /data nextdns \
+            && chmod +x "${NEXTDNS_BIN}" \
+            && echo "${LATEST}" > "${VERSION_FILE}"
+        bashio::log.info "NextDNS v${LATEST} ready."
     else
-        bashio::log.fatal "No cached binary and GitHub is unreachable. Cannot start."
+        bashio::log.fatal "No cached binary and cannot reach GitHub. Cannot start."
         exit 1
     fi
 else
-    bashio::log.info "NextDNS v${CACHED} is current — skipping download."
+    bashio::log.info "NextDNS v${CACHED} is up to date."
 fi
 
-# ── Verify binary works ───────────────────────────────────────────────────────
-NEXTDNS_VER=$("${NEXTDNS_BIN}" version 2>&1 || true)
-bashio::log.info "Binary check: ${NEXTDNS_VER}"
+# ── Validate config ────────────────────────────────────────────────────────────
+PROFILE_ID=$(bashio::config 'profile_id')
+DEVICE_NAME=$(bashio::config 'device_name')
 
-# ── Read configuration ─────────────────────────────────────────────────────────
-CONFIG_ID=$(bashio::config 'config_id')
-
-if bashio::var.is_empty "${CONFIG_ID}"; then
-    bashio::log.fatal "config_id is not set. Open the add-on Configuration tab and enter your NextDNS profile ID (e.g. 3ee52c) from my.nextdns.io → Setup tab."
+if bashio::var.is_empty "${PROFILE_ID}"; then
+    bashio::log.fatal "profile_id is not set. Go to the Configuration tab and enter your NextDNS Profile ID from my.nextdns.io."
     exit 1
 fi
-bashio::log.info "Using NextDNS profile: ${CONFIG_ID}"
 
-# ── Build nextdns arguments ────────────────────────────────────────────────────
-ARGS=(
-    "--profile" "${CONFIG_ID}"
-    "--listen" "0.0.0.0:53"
-)
+# Set device name so NextDNS can identify this device in the dashboard
+hostname "${DEVICE_NAME}" 2>/dev/null || true
 
-bashio::config.true 'report_client_info' && ARGS+=("--report-client-info")
-bashio::config.true 'log_queries'        && ARGS+=("--log-queries")
-bashio::config.true 'bogus_priv'         && ARGS+=("--bogus-priv")
-bashio::config.true 'use_hosts'          && ARGS+=("--use-hosts")
+bashio::log.info "Profile: ${PROFILE_ID} | Device: ${DEVICE_NAME}"
 
-CACHE_SIZE=$(bashio::config 'cache_size')
-[ "${CACHE_SIZE}" -gt 0 ] && ARGS+=("--cache-size" "${CACHE_SIZE}MB")
-
-MAX_TTL=$(bashio::config 'max_ttl')
-[ "${MAX_TTL}" -gt 0 ] && ARGS+=("--max-ttl" "${MAX_TTL}s")
-
-FORWARDER=$(bashio::config 'forwarder')
-bashio::var.is_empty "${FORWARDER}" || ARGS+=("--forwarder" "${FORWARDER}")
-
-bashio::log.info "Running: ${NEXTDNS_BIN} run ${ARGS[*]}"
-bashio::log.info "=== NextDNS starting — DNS is available on port 53 ==="
-
-exec "${NEXTDNS_BIN}" run "${ARGS[@]}"
+exec "${NEXTDNS_BIN}" run \
+    --profile "${PROFILE_ID}" \
+    --listen "0.0.0.0:53" \
+    --report-client-info \
+    --bogus-priv \
+    --use-hosts

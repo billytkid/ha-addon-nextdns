@@ -1,7 +1,7 @@
 name: NextDNS
-version: "1.2.2"
+version: "2.0.0"
 slug: nextdns
-description: Run the NextDNS client as a Home Assistant add-on for network-wide DNS filtering.
+description: Forward your network's DNS traffic through NextDNS.
 url: "https://github.com/billytkid/ha-addon-nextdns"
 arch:
   - aarch64
@@ -16,24 +16,12 @@ ports:
   53/tcp: 53
   53/udp: 53
 ports_description:
-  53/tcp: DNS server (TCP)
-  53/udp: DNS server (UDP)
+  53/tcp: DNS
+  53/udp: DNS
 options:
-  config_id: ""
-  report_client_info: true
-  log_queries: false
-  cache_size: 0
-  max_ttl: 5
-  bogus_priv: true
-  use_hosts: true
-  forwarder: ""
+  profile_id: ""
+  device_name: "home-assistant"
 schema:
-  config_id: str
-  report_client_info: bool
-  log_queries: bool
-  cache_size: int
-  max_ttl: int
-  bogus_priv: bool
-  use_hosts: bool
-  forwarder: str
+  profile_id: str
+  device_name: str
 image: "ghcr.io/billytkid/ha-addon-nextdns/{arch}"

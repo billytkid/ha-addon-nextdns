@@ -1,44 +1,11 @@
 configuration:
-  config_id:
-    name: Configuration ID
+  profile_id:
+    name: NextDNS Profile ID
     description: >-
-      Your NextDNS profile ID. Find it at my.nextdns.io → your profile → Setup tab.
-      It is the short code shown next to "ID" (e.g. 3ee52c). Do not paste the full URL — just the ID.
-  report_client_info:
-    name: Report client info
+      The ID for your NextDNS profile. Find it at my.nextdns.io → Setup tab,
+      next to "ID" (e.g. 3ee52c). Just the short code — not the full URL.
+  device_name:
+    name: Device name
     description: >-
-      Send device names and model info to NextDNS. Enables per-device analytics
-      and filtering rules on your my.nextdns.io dashboard.
-  log_queries:
-    name: Log DNS queries
-    description: >-
-      Print every DNS query to the add-on log. Useful for troubleshooting.
-      Leave off in normal use as it produces a lot of output.
-  cache_size:
-    name: Cache size (MB)
-    description: >-
-      How many megabytes of DNS responses to cache locally. 0 disables caching.
-      A value of 10–50 MB speeds up repeated lookups without using much memory.
-  max_ttl:
-    name: Max TTL (seconds)
-    description: >-
-      Maximum time in seconds that a cached DNS response is considered valid.
-      Lower values mean more up-to-date results but more queries to NextDNS.
-      Default of 5 seconds is a good balance.
-  bogus_priv:
-    name: Block private reverse lookups
-    description: >-
-      Block reverse DNS lookups (PTR queries) for private IP ranges like 192.168.x.x.
-      These should never be sent to an external DNS server, so keep this on.
-  use_hosts:
-    name: Use system hosts file
-    description: >-
-      Resolve hostnames defined in the system /etc/hosts file before querying NextDNS.
-      Keep this on to respect any local hostname overrides.
-  forwarder:
-    name: Forwarder rules
-    description: >-
-      Send queries for specific domains to a different DNS server instead of NextDNS.
-      Format: domain=IP  —  e.g. home.lan=192.168.1.1 sends all .home.lan queries
-      to your router at 192.168.1.1 so local hostnames still resolve.
-      Leave blank if you do not have local domains.
+      A name for this device as it will appear in your NextDNS dashboard.
+      Defaults to "home-assistant".
