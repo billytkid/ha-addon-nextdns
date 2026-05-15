@@ -12,8 +12,8 @@ RUN apk add --no-cache \
     && case "${BUILD_ARCH}" in \
         aarch64) NEXTDNS_ARCH="arm64" ;; \
         amd64)   NEXTDNS_ARCH="amd64" ;; \
-        armhf)   NEXTDNS_ARCH="arm" ;; \
-        armv7)   NEXTDNS_ARCH="arm" ;; \
+        armhf)   NEXTDNS_ARCH="armv6" ;; \
+        armv7)   NEXTDNS_ARCH="armv7" ;; \
         i386)    NEXTDNS_ARCH="386" ;; \
         *) echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1 ;; \
     esac \

@@ -26,12 +26,22 @@ jobs:
       packages: write
     strategy:
       matrix:
-        arch:
-          - aarch64
-          - amd64
-          - armhf
-          - armv7
-          - i386
+        include:
+          - arch: aarch64
+            platform: linux/arm64
+            base: ghcr.io/home-assistant/aarch64-base:latest
+          - arch: amd64
+            platform: linux/amd64
+            base: ghcr.io/home-assistant/amd64-base:latest
+          - arch: armhf
+            platform: linux/arm/v6
+            base: ghcr.io/home-assistant/armhf-base:latest
+          - arch: armv7
+            platform: linux/arm/v7
+            base: ghcr.io/home-assistant/armv7-base:latest
+          - arch: i386
+            platform: linux/386
+            base: ghcr.io/home-assistant/i386-base:latest
 
     steps:
       - name: Checkout repository
@@ -51,20 +61,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read build args
+      - name: Read NextDNS version
         id: build_args
         run: |
           NEXTDNS_VERSION=$(grep 'NEXTDNS_VERSION' nextdns/build.yaml | awk '{print $2}' | tr -d '"')
           echo "nextdns_version=${NEXTDNS_VERSION}" >> "$GITHUB_OUTPUT"
-
-          case "${{ matrix.arch }}" in
-            aarch64) BASE="ghcr.io/home-assistant/aarch64-base:latest" ;;
-            amd64)   BASE="ghcr.io/home-assistant/amd64-base:latest" ;;
-            armhf)   BASE="ghcr.io/home-assistant/armhf-base:latest" ;;
-            armv7)   BASE="ghcr.io/home-assistant/armv7-base:latest" ;;
-            i386)    BASE="ghcr.io/home-assistant/i386-base:latest" ;;
-          esac
-          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
 
       - name: Docker meta
         id: meta
@@ -81,12 +82,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./nextdns
-          platforms: linux/${{ matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'amd64' && 'amd64' || matrix.arch == 'armhf' && 'arm/v6' || matrix.arch == 'armv7' && 'arm/v7' || '386' }}
+          platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            BUILD_FROM=${{ steps.build_args.outputs.base }}
+            BUILD_FROM=${{ matrix.base }}
             BUILD_ARCH=${{ matrix.arch }}
             NEXTDNS_VERSION=${{ steps.build_args.outputs.nextdns_version }}
           cache-from: type=gha
