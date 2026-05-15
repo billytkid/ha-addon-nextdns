@@ -61,12 +61,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read NextDNS version
-        id: build_args
-        run: |
-          NEXTDNS_VERSION=$(grep 'NEXTDNS_VERSION' nextdns/build.yaml | awk '{print $2}' | tr -d '"')
-          echo "nextdns_version=${NEXTDNS_VERSION}" >> "$GITHUB_OUTPUT"
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -89,6 +83,5 @@ jobs:
           build-args: |
             BUILD_FROM=${{ matrix.base }}
             BUILD_ARCH=${{ matrix.arch }}
-            NEXTDNS_VERSION=${{ steps.build_args.outputs.nextdns_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
