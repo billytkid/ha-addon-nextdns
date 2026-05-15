@@ -74,27 +74,9 @@ if bashio::var.is_empty "${CONFIG_ID}"; then
 fi
 bashio::log.info "Using NextDNS profile: ${CONFIG_ID}"
 
-# ── Discover host network interfaces ──────────────────────────────────────────
-bashio::log.info "Discovering host network interfaces..."
-LISTEN_HOSTS=()
-for iface in $(bashio::network.interfaces); do
-    for addr in $(bashio::network.ipv4_address "${iface}"); do
-        ip="${addr%/*}"
-        # Skip link-local (169.254.x.x)
-        if [[ "${ip}" =~ ^169\.254\. ]]; then
-            bashio::log.debug "Skipping link-local address: ${ip}"
-            continue
-        fi
-        bashio::log.info "Will listen on interface ${iface}: ${ip}"
-        LISTEN_HOSTS+=("${ip}")
-    done
-done
-LISTEN_HOSTS+=("127.0.0.1")
-bashio::log.info "Listen addresses: ${LISTEN_HOSTS[*]}"
-
 # ── Build nextdns arguments ────────────────────────────────────────────────────
 ARGS=(
-    "--config" "${CONFIG_ID}"
+    "--profile" "${CONFIG_ID}"
     "--listen" "0.0.0.0:53"
 )
 
