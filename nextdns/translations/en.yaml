@@ -4,12 +4,6 @@ configuration:
     description: >-
       Your NextDNS profile ID. Find it at my.nextdns.io → your profile → Setup tab.
       It is the short code shown next to "ID" (e.g. 3ee52c). Do not paste the full URL — just the ID.
-  listen:
-    name: Listen address
-    description: >-
-      The address and port NextDNS will listen on for DNS queries.
-      Use 0.0.0.0:53 (default) to accept queries from all devices on your network.
-      Change to 127.0.0.1:53 if you only want HA itself to use it.
   report_client_info:
     name: Report client info
     description: >-
